@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas の仕組み</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+    h2 { color: #34495e; margin-top: 30px; }
+    h3 { color: #7f8c8d; }
+    .demo-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #3498db;
+    }
+    canvas {
+      border: 2px solid #ddd;
+      margin: 10px;
+      display: block;
+    }
+    code {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    .code-block {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    .important {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 15px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #2980b9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Canvas の仕組み完全ガイド</h1>
+
+    <h2>1. Canvasとは何か</h2>
+    <p>CanvasはHTML5で導入された、<strong>ピクセル単位で描画できる領域</strong>です。まさに「デジタルのキャンバス」として機能します。</p>
+    
+    <div class="important">
+      <strong>重要な概念:</strong> CanvasはHTMLの <code>&lt;canvas&gt;</code> 要素と、JavaScriptの描画APIの組み合わせです。
+    </div>
+
+    <h2>2. 基本的な仕組み</h2>
+    
+    <h3>📋 HTML部分</h3>
+    <div class="code-block">
+&lt;canvas id="myCanvas" width="400" height="300"&gt;&lt;/canvas&gt;
+    </div>
+
+    <h3>🖼️ JavaScript部分</h3>
+    <div class="code-block">
+const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');  // 描画コンテキストを取得
+    </div>
+
+    <div class="demo-section">
+      <h3>実際の例: 基本図形描画</h3>
+      <div class="grid">
+        <div>
+          <canvas id="basicCanvas" width="300" height="200"></canvas>
+          <br>
+          <button onclick="drawBasicShapes()">基本図形を描画</button>
+          <button onclick="clearBasic()">クリア</button>
+        </div>
+        <div>
+          <div class="code-block" style="font-size: 12px;">
+function drawBasicShapes() {
+  const canvas = document.getElementById('basicCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  // 矩形
+  ctx.fillStyle = 'red';
+  ctx.fillRect(10, 10, 80, 60);
+  
+  // 円
+  ctx.beginPath();
+  ctx.arc(150, 40, 30, 0, Math.PI * 2);
+  ctx.fillStyle = 'blue';
+  ctx.fill();
+  
+  // 線
+  ctx.beginPath();
+  ctx.moveTo(200, 20);
+  ctx.lineTo(280, 80);
+  ctx.strokeStyle = 'green';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>3. 描画コンテキスト（Context）の仕組み</h2>
+    <p>Canvasに描画するには<strong>コンテキスト</strong>が必要です。これは「描画ツール」のようなものです。</p>
+
+    <div class="grid">
+      <div>
+        <h3>🎨 2Dコンテキスト</h3>
+        <ul>
+          <li><code>getContext('2d')</code></li>
+          <li>平面的な描画</li>
+          <li>図形、テキスト、画像など</li>
+        </ul>
+      </div>
+      <div>
+        <h3>🌐 3Dコンテキスト</h3>
+        <ul>
+          <li><code>getContext('webgl')</code></li>
+          <li>3D描画（WebGL）</li>
+          <li>より高度で複雑</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>4. 座標系の仕組み</h2>
+    <div class="demo-section">
+      <h3>Canvas座標系の可視化</h3>
+      <div class="grid">
+        <div>
+          <canvas id="coordinateCanvas" width="300" height="200"></canvas>
+          <br>
+          <button onclick="showCoordinates()">座標系を表示</button>
+        </div>
+        <div>
+          <p><strong>重要なポイント:</strong></p>
+          <ul>
+            <li>左上が原点 (0, 0)</li>
+            <li>X軸: 右方向が正の値</li>
+            <li>Y軸: <strong>下方向が正の値</strong></li>
+            <li>数学の座標系とY軸が逆！</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2>5. 描画の仕組み（ステートフル）</h2>
+    <p>Canvasは<strong>ステートフル</strong>です。つまり、設定した描画状態が次の描画まで保持されます。</p>
+
+    <div class="demo-section">
+      <h3>ステートフルの動作例</h3>
+      <div class="grid">
+        <div>
+          <canvas id="stateCanvas" width="300" height="150"></canvas>
+          <br>
+          <button onclick="demonstrateState()">ステートの動作を確認</button>
+        </div>
+        <div>
+          <div class="code-block" style="font-size: 12px;">
+// 一度設定した色は保持される
+ctx.fillStyle = 'red';
+ctx.fillRect(10, 10, 50, 50);  // 赤
+ctx.fillRect(70, 10, 50, 50);  // まだ赤
+
+// 新しい色を設定
+ctx.fillStyle = 'blue';
+ctx.fillRect(130, 10, 50, 50); // 青
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>6. パスの仕組み</h2>
+    <p>複雑な図形を描くときは<strong>パス</strong>を使います。これは「設計図」を作ってから描画する方法です。</p>
+
+    <div class="demo-section">
+      <h3>パスを使った描画</h3>
+      <div class="grid">
+        <div>
+          <canvas id="pathCanvas" width="300" height="150"></canvas>
+          <br>
+          <button onclick="drawWithPath()">パスで描画</button>
+          <button onclick="clearPath()">クリア</button>
+        </div>
+        <div>
+          <div class="code-block" style="font-size: 12px;">
+// パスの基本的な流れ
+ctx.beginPath();        // 新しいパス開始
+ctx.moveTo(50, 50);     // 開始点
+ctx.lineTo(150, 50);    // 線を引く
+ctx.lineTo(100, 100);   // 三角形の頂点
+ctx.closePath();        // パスを閉じる
+ctx.stroke();           // 実際に描画
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>7. アニメーションの仕組み</h2>
+    <p>アニメーションは<strong>描画→クリア→描画</strong>の繰り返しです。</p>
+
+    <div class="demo-section">
+      <h3>アニメーションの基本構造</h3>
+      <div class="grid">
+        <div>
+          <canvas id="animCanvas" width="300" height="150"></canvas>
+          <br>
+          <button onclick="startAnimation()">アニメーション開始</button>
+          <button onclick="stopAnimation()">停止</button>
+        </div>
+        <div>
+          <div class="code-block" style="font-size: 12px;">
+let x = 0;
+let animationId;
+
+function animate() {
+  // 1. クリア
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // 2. 位置更新
+  x += 2;
+  if (x > canvas.width) x = -50;
+  
+  // 3. 描画
+  ctx.fillStyle = 'red';
+  ctx.fillRect(x, 50, 50, 50);
+  
+  // 4. 次のフレーム予約
+  animationId = requestAnimationFrame(animate);
+}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>8. よく使用される描画メソッド</h2>
+    <div class="demo-section">
+      <div class="grid">
+        <div>
+          <h3>図形描画</h3>
+          <ul>
+            <li><code>fillRect()</code> - 塗りつぶし矩形</li>
+            <li><code>strokeRect()</code> - 枠線矩形</li>
+            <li><code>arc()</code> - 円・円弧</li>
+            <li><code>ellipse()</code> - 楕円</li>
+          </ul>
+        </div>
+        <div>
+          <h3>パス操作</h3>
+          <ul>
+            <li><code>beginPath()</code> - パス開始</li>
+            <li><code>moveTo()</code> - 移動</li>
+            <li><code>lineTo()</code> - 線描画</li>
+            <li><code>closePath()</code> - パス閉じる</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2>9. 重要な概念：即座描画 vs 遅延描画</h2>
+    <div class="important">
+      <p><strong>即座描画:</strong> <code>fillRect()</code>, <code>fillText()</code> など</p>
+      <p><strong>遅延描画:</strong> <code>beginPath()</code> → パス作成 → <code>fill()</code>/<code>stroke()</code></p>
+    </div>
+
+    <h2>10. 実践例：インタラクティブ描画</h2>
+    <div class="demo-section">
+      <h3>マウスで描画してみよう</h3>
+      <canvas id="drawCanvas" width="400" height="200" style="cursor: crosshair;"></canvas>
+      <br>
+      <button onclick="clearDraw()">クリア</button>
+      <select id="colorSelect">
+        <option value="black">黒</option>
+        <option value="red">赤</option>
+        <option value="blue">青</option>
+        <option value="green">緑</option>
+      </select>
+    </div>
+
+  </div>
+
+  <script>
+    // 基本図形描画
+    function drawBasicShapes() {
+      const canvas = document.getElementById('basicCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // 矩形
+      ctx.fillStyle = 'red';
+      ctx.fillRect(10, 10, 80, 60);
+      
+      // 円
+      ctx.beginPath();
+      ctx.arc(150, 40, 30, 0, Math.PI * 2);
+      ctx.fillStyle = 'blue';
+      ctx.fill();
+      
+      // 線
+      ctx.beginPath();
+      ctx.moveTo(200, 20);
+      ctx.lineTo(280, 80);
+      ctx.strokeStyle = 'green';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    function clearBasic() {
+      const canvas = document.getElementById('basicCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // 座標系表示
+    function showCoordinates() {
+      const canvas = document.getElementById('coordinateCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // グリッド描画
+      ctx.strokeStyle = '#ddd';
+      ctx.lineWidth = 1;
+      
+      for (let x = 0; x <= canvas.width; x += 20) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      
+      for (let y = 0; y <= canvas.height; y += 20) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+      
+      // 軸
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(canvas.width, 0);
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, canvas.height);
+      ctx.stroke();
+      
+      // 原点マーク
+      ctx.fillStyle = 'red';
+      ctx.fillRect(-3, -3, 6, 6);
+      
+      // 座標ラベル
+      ctx.fillStyle = 'black';
+      ctx.font = '12px Arial';
+      ctx.fillText('(0,0)', 5, 15);
+      ctx.fillText('X軸', canvas.width - 30, 15);
+      ctx.fillText('Y軸', 5, canvas.height - 5);
+    }
+
+    // ステートフル動作
+    function demonstrateState() {
+      const canvas = document.getElementById('stateCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // 最初に赤を設定
+      ctx.fillStyle = 'red';
+      ctx.fillRect(10, 50, 50, 50);
+      
+      // 色を変えずに次の矩形（まだ赤）
+      ctx.fillRect(70, 50, 50, 50);
+      
+      // 青に変更
+      ctx.fillStyle = 'blue';
+      ctx.fillRect(130, 50, 50, 50);
+      
+      // まだ青のまま
+      ctx.fillRect(190, 50, 50, 50);
+    }
+
+    // パス描画
+    function drawWithPath() {
+      const canvas = document.getElementById('pathCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // 三角形
+      ctx.beginPath();
+      ctx.moveTo(50, 50);
+      ctx.lineTo(150, 50);
+      ctx.lineTo(100, 100);
+      ctx.closePath();
+      ctx.fillStyle = 'lightblue';
+      ctx.fill();
+      ctx.strokeStyle = 'blue';
+      ctx.stroke();
+      
+      // 星型
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const angle = (i * Math.PI * 4) / 5;
+        const x = 220 + Math.cos(angle) * 30;
+        const y = 75 + Math.sin(angle) * 30;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = 'gold';
+      ctx.fill();
+      ctx.strokeStyle = 'orange';
+      ctx.stroke();
+    }
+
+    function clearPath() {
+      const canvas = document.getElementById('pathCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // アニメーション
+    let x = 0;
+    let animationId;
+
+    function animate() {
+      const canvas = document.getElementById('animCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      // クリア
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // 位置更新
+      x += 2;
+      if (x > canvas.width) x = -50;
+      
+      // 描画
+      ctx.fillStyle = 'red';
+      ctx.fillRect(x, 50, 50, 50);
+      
+      // 次フレーム
+      animationId = requestAnimationFrame(animate);
+    }
+
+    function startAnimation() {
+      if (animationId) cancelAnimationFrame(animationId);
+      animate();
+    }
+
+    function stopAnimation() {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+      }
+    }
+
+    // インタラクティブ描画
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function initDrawCanvas() {
+      const canvas = document.getElementById('drawCanvas');
+      const ctx = canvas.getContext('2d');
+      const colorSelect = document.getElementById('colorSelect');
+
+      canvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        lastX = e.clientX - rect.left;
+        lastY = e.clientY - rect.top;
+      });
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (!isDrawing) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const currentX = e.clientX - rect.left;
+        const currentY = e.clientY - rect.top;
+        
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(currentX, currentY);
+        ctx.strokeStyle = colorSelect.value;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        
+        lastX = currentX;
+        lastY = currentY;
+      });
+
+      canvas.addEventListener('mouseup', () => {
+        isDrawing = false;
+      });
+
+      canvas.addEventListener('mouseout', () => {
+        isDrawing = false;
+      });
+    }
+
+    function clearDraw() {
+      const canvas = document.getElementById('drawCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // 初期化
+    document.addEventListener('DOMContentLoaded', () => {
+      initDrawCanvas();
+    });
+  </script>
+</body>
+</html>

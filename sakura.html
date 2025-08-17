@@ -8,7 +8,8 @@
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #87CEEB 0%, #98D4EA 50%, #B0E0E6 100%);
+      /* background: linear-gradient(135deg, #87CEEB 0%, #98D4EA 50%, #B0E0E6 100%); */
+      background: rgba(pink, 0.8) ;
       font-family: 'Arial', sans-serif;
     }
     
@@ -89,8 +90,8 @@
           'rgba(255, 182, 193, ',
           'rgba(255, 192, 203, ',
           'rgba(255, 218, 224, ',
-          'rgba(255, 240, 245, ',
-          'rgba(252, 228, 236, '
+          // 'rgba(255, 240, 245, ',
+          // 'rgba(252, 228, 236, '
         ];
         this.color = pinkShades[Math.floor(Math.random() * pinkShades.length)];
       }
@@ -122,18 +123,18 @@
         ctx.globalAlpha = this.opacity;
 
         // 桜の花びらの形を描画（5枚の花びら）
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 1; i++) {
           ctx.save();
           ctx.rotate((Math.PI * 2 / 5) * i);
           
           // 花びらの形（楕円形）
           ctx.beginPath();
           ctx.ellipse(0, -this.size/2, this.size/3, this.size, 0, 0, Math.PI * 2);
-          ctx.fillStyle = this.color + this.opacity + ')';
+          ctx.fillStyle = this.color + (this.opacity*0.8) + ')';
           ctx.fill();
           
           // 薄い縁取り
-          ctx.strokeStyle = this.color + (this.opacity * 0.8) + ')';
+          ctx.strokeStyle = this.color + (this.opacity * 0.6) + ')';
           ctx.lineWidth = 0.5;
           ctx.stroke();
           
@@ -143,7 +144,7 @@
         // 中心部分
         ctx.beginPath();
         ctx.arc(0, 0, this.size/4, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 190, ' + (this.opacity * 0.8) + ')';
+        ctx.fillStyle = 'rgba(255, 255, 190, ' + (this.opacity * 0.4) + ')';
         ctx.fill();
 
         ctx.restore();
@@ -152,7 +153,7 @@
 
     // 花びらの配列
     const petals = [];
-    const numberOfPetals = 50;
+    const numberOfPetals = 300;
 
     // 花びらを初期化
     for (let i = 0; i < numberOfPetals; i++) {

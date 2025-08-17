@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>シンプル四角形アニメーション</title>
+</head>
+<body>
+  <canvas id="myCanvas" width="600" height="400" style="border:1px solid #000;"></canvas>
+  
+  <script>
+    // 1. キャンバス要素とコンテキストを取得
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // 2. 四角形の位置を記録する変数
+    let x = 0;  // 左端から開始
+    
+    // 3. アニメーション関数
+    function animate() {
+      // キャンバスをクリア（前のフレームを消去）
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // 四角形を描画（x座標, y座標, 幅, 高さ）
+      ctx.fillStyle = 'red';
+      ctx.fillRect(x, 100, 50, 50);
+      
+      // 位置を5ピクセル右に移動
+      x += 5;
+      
+      // 画面右端に到達したら左端に戻る
+      if (x > canvas.width) {
+        x = -50;  // 四角形が完全に見えなくなってから再登場
+      }
+      
+      // 次のフレームで再度この関数を実行
+      requestAnimationFrame(animate);
+    }
+    
+    // 4. アニメーション開始
+    animate();
+  </script>
+</body>
+</html>
