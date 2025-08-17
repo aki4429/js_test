@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas</title>
+</head>
+<body>
+  <canvas id="myCanvas" width="800" height="600" style="border:1px solid grey;"></canvas>
+ 
+  <script>
+    let canvas = document.getElementById('myCanvas');
+    let velocityX1 = 2
+    let velocityX2 = 3
+    let velocityX3 = 4
+    let velocityY1 = 1
+    let velocityY2 = 2
+    let velocityY3 = 3
+
+    class Ctx {
+      constructor(canvas, color, x, y, width, height) {
+        this.canvas = canvas
+        this.ctx = canvas.getContext('2d');
+        this.color = color;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height; 
+      }
+
+      draw() {
+        this.ctx.fillStyle = this.color;
+        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+      }
+    }
+
+    let rect1 = new Ctx(canvas, 'rgba(0,0,255,0.4)', 16, 50, 50, 50);
+    let rect2 = new Ctx(canvas, 'rgba(0,128,0,0.4)', 32, 50, 50, 50);
+    let rect3 = new Ctx(canvas, 'rgba(255,0,0,0.4)', 48, 50, 50, 50);
+
+    function paint(rect, velx, vely) {
+      if(rect.x+velx > 800) {rect.x = 0}
+      if(rect.y+vely > 600) {rect.y = 0}
+      rect.x += velx;
+      rect.y += vely;
+      rect.draw();
+    }
+
+    function animate(){
+      // キャンバスをクリア
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+      paint(rect1, velocityX1, velocityY1);
+      paint(rect2, velocityX2, velocityY2);
+      paint(rect3, velocityX3, velocityY3); 
+    }
+
+    function play() {
+      setInterval(animate, 1000/60);
+    }
+
+    play();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>最小構成モーダル（A11y & Esc対応）</title>
+  <style>
+    :root {
+      --overlay: rgba(0,0,0,.5);
+      --radius: 16px;
+      --easing: cubic-bezier(.2,.7,.2,1);
+      --shadow: 0 10px 30px rgba(0,0,0,.2);
+    }
+
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "メイリオ", sans-serif; line-height: 1.6; margin: 0; }
+    main { max-width: 960px; margin: 6rem auto; padding: 0 1.2rem; }
+    h1 { font-size: clamp(1.6rem, 2vw + 1rem, 2.2rem); }
+    button { cursor: pointer; }
+
+    /* --- Modal Base --- */
+    .modal-root {
+      position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;
+      /* 初期状態は非表示（display: none にするとトランジションできないのでvisibilityで制御） */
+      visibility: hidden; opacity: 0; transition: opacity .25s var(--easing), visibility 0s linear .25s;
+    }
+    .modal-root.is-open { visibility: visible; opacity: 1; transition: opacity .25s var(--easing); }
+
+    .modal-overlay { position: absolute; inset: 0; background: var(--overlay); }
+
+    .modal-panel {
+      position: relative; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+      width: min(560px, 92vw); max-height: 86vh; overflow: auto; padding: 1.2rem 1.2rem 1rem;
+      transform: translateY(10px) scale(.98); opacity: 0; transition: transform .25s var(--easing), opacity .25s var(--easing);
+    }
+    .is-open .modal-panel { transform: none; opacity: 1; }
+
+    .modal-header { display: flex; align-items: center; justify-content: space-between; gap: .8rem; margin-bottom: .6rem; }
+    .modal-title { margin: 0; font-size: 1.2rem; }
+    .modal-close {
+      border: none; background: #f2f4f7; padding: .4rem .6rem; border-radius: 10px; font-size: 14px;
+    }
+    .modal-close:hover { background: #e6e9ef; }
+
+    .muted { color: #666; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>最小構成モーダル（ゼロから）</h1>
+    <p>下のボタンを押すとモーダルが開きます。<code>Esc</code> キー、背景クリック、×ボタンで閉じられます。Tabでフォーカスがモーダル内に留まります。</p>
+    <button id="openModal" aria-haspopup="dialog">モーダルを開く</button>
+  </main>
+
+  <!-- Modal Root -->
+  <div id="modal" class="modal-root" aria-hidden="true">
+    <div class="modal-overlay" data-close="overlay" tabindex="-1"></div>
+
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header class="modal-header">
+        <h2 id="modal-title" class="modal-title">サンプルモーダル</h2>
+        <button class="modal-close" id="closeModal" aria-label="閉じる (Esc)">×</button>
+      </header>
+      <div class="modal-body">
+        <p>これは最小構成のモーダルです。HTML / CSS / JS の役割を分けて実装しています。</p>
+        <p class="muted">フォーカスはモーダル内にトラップされ、背景クリックや Esc でも閉じられます。</p>
+        <p>
+          <a href="#" onclick="return false;">ダミーリンク</a>
+          <button>ダミーボタン</button>
+          <input type="text" placeholder="テキスト入力" />
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ===== 基本取得 =====
+    const openBtn = document.getElementById('openModal');
+    const modalRoot = document.getElementById('modal');
+    const closeBtn = document.getElementById('closeModal');
+    const panel = modalRoot.querySelector('.modal-panel');
+
+    let lastFocused = null; // 開く前のフォーカスを保持
+
+    // フォーカス可能要素の選択子（ボタン、リンク、入力など）
+    const FOCUSABLE = [
+      'a[href]', 'area[href]', 'input:not([disabled])', 'select:not([disabled])',
+      'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'audio[controls]', 'video[controls]',
+      '[contenteditable="true"]', '[tabindex]:not([tabindex="-1"])'
+    ].join(',');
+
+    function getFocusable(container) {
+      return Array.from(container.querySelectorAll(FOCUSABLE))
+        .filter(el => el.offsetParent !== null || el.getAttribute('aria-hidden') !== 'true');
+    }
+
+    // ===== 開閉制御 =====
+    function openModal() {
+      lastFocused = document.activeElement;
+      modalRoot.classList.add('is-open');
+      modalRoot.setAttribute('aria-hidden', 'false');
+      // 最初のフォーカス先
+      const focusables = getFocusable(panel);
+      (focusables[0] || closeBtn).focus();
+      // 背景スクロール抑止（簡易）
+      document.documentElement.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modalRoot.classList.remove('is-open');
+      modalRoot.setAttribute('aria-hidden', 'true');
+      document.documentElement.style.overflow = '';
+      // フォーカスを呼び出し元に戻す
+      if (lastFocused) lastFocused.focus();
+    }
+
+    // ===== イベント登録 =====
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    // 背景クリックで閉じる
+    modalRoot.addEventListener('click', (e) => {
+      if (e.target.matches('[data-close="overlay"]')) closeModal();
+    });
+
+    // Escで閉じる + Tabでフォーカストラップ
+    modalRoot.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeModal();
+        return;
+      }
+      if (e.key === 'Tab' && modalRoot.classList.contains('is-open')) {
+        const focusables = getFocusable(panel);
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    // フォーカスをモーダル外に逃がさない（フォーカスが外れたら戻す保険）
+    document.addEventListener('focusin', (e) => {
+      if (!modalRoot.classList.contains('is-open')) return;
+      if (!panel.contains(e.target)) {
+        const focusables = getFocusable(panel);
+        (focusables[0] || closeBtn).focus();
+      }
+    });
+  </script>
+</body>
+</html>

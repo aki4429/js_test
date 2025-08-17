@@ -1,0 +1,43 @@
+<p class="paragraph">a</p>
+<p class="paragraph" name="p_tag">b</p>
+<p name="p_tag">c</p>
+<script type="text/javascript">
+  // name属性から取得
+  console.log(document.getElementsByName("p_tag")[0]);
+  /* 出力内容
+    NodeList(2) [p.paragraph, p]
+    length: 2
+    0: p.paragraph
+    1: p
+    __proto__: NodeList
+  */
+
+  // class属性から取得
+  console.log(document.getElementsByClassName("paragraph")[1]);
+  /* 出力内容
+    HTMLCollection(2) [p.paragraph, p.paragraph, p_tag: p.paragraph]
+    length: 2
+    0: p.paragraph
+    1: p.paragraph
+    p_tag: p.paragraph
+    __proto__: HTMLCollection
+  */
+
+  // 要素名から取得
+  console.log(document.getElementsByTagName("p"));
+  /* 出力内容
+    HTMLCollection(3) [p.paragraph, p.paragraph, p, p_tag: p.paragraph]
+    length: 3
+    0: p.paragraph
+    1: p.paragraph
+    2: p
+    p_tag: p.paragraph
+    __proto__: HTMLCollection
+  */
+
+  // 要素を一つだけ取得
+  console.log(document.getElementsByTagName("p")[0]);
+  /* 出力内容
+    <p class="paragraph">a</p>
+  */
+</script>
