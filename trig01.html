@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>trig 1</title>
+  <style>
+    :root {
+      --red:#EA2264;
+      --blue:#0D1164;
+      --orange:#F78D60;
+      --light-grey:#EEEEEE;
+      --purple:#640D5F;
+    }
+    html {
+      color: var(--blue);
+    }
+    .main-frame{
+      max-width: 1140px;
+      width: 100%;
+      height: auto;
+      display: flex;
+      margin-left: auto;
+      margin-right: auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    .header {
+      width: 600px ;
+      height: 80px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+    }
+    .canvas-frame {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 600px;
+      height: 600px;
+      border: 1px solid var(--light-grey);
+      position: relative;
+    }
+    #xline {
+      position: absolute;
+      color: var(--purple);
+      font-family: Arial, Helvetica, sans-serif  ;
+      font-size: 20px;
+      width: fit-content;
+      height: auto;
+    }
+    #yline {
+      position: absolute;
+      color: var(--orange);
+      font-family: Arial, Helvetica, sans-serif  ;
+      font-size: 20px;
+      width: fit-content;
+      height: auto;
+    }
+  </style>
+
+</head>
+<body>
+  <div class="main-frame" >
+    <div class="header" height="150">
+      <input type="range" min="0" max="360" value="36" height="150" id="angleRange">
+    <div class="kakudo">
+      角度: <span id="angleValue">36.00</span>° = <span id="anglePi">0.20</span> &pi; ラジアン
+    </div>
+    </div>
+    <div class="canvas-frame" >
+      <canvas id="myCanvas" width="500px" height="500px" > </canvas>
+      <span id="xline"></span>
+      <span id="yline"></span>
+
+    </div>
+
+  </div>
+  <script>
+    // :root を取得
+const root = document.documentElement;
+
+// getComputedStyle でCSS変数の値を取得
+const blue = getComputedStyle(root).getPropertyValue('--blue').trim();
+const red = getComputedStyle(root).getPropertyValue('--red').trim();
+const orange = getComputedStyle(root).getPropertyValue('--orange').trim();
+const lightGrey = getComputedStyle(root).getPropertyValue('--light-grey').trim();
+const purple = getComputedStyle(root).getPropertyValue('--purple').trim();
+
+
+    let canvas = document.getElementById("myCanvas");
+    let ctx = canvas.getContext("2d");
+
+    let centerX = canvas.width / 2; //X中心
+    let centerY = canvas.height / 2; //Y中心
+
+    function paint(){
+    ctx.strokeStyle = blue; //軸の色
+    ctx.lineWidth = 2;  //軸の太さ
+
+    // X軸描画
+    ctx.beginPath();
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(canvas.width, centerY);
+    ctx.stroke();
+
+    // Y軸描画
+    ctx.beginPath();
+    ctx.moveTo(centerX, 0);
+    ctx.lineTo(centerX, canvas.height);
+    ctx.stroke();
+
+    //中心点
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 5, 0, 2 * Math.PI);
+    ctx.fillStyle = red; //中心点の色
+    ctx.fill();
+
+    //グリッド描画
+    ctx.strokeStyle = lightGrey; //グリッドの色
+    ctx.lineWidth = 1; //グリッドの太さ
+    // 垂直線 
+    let cellX = canvas.width / 20; //グリッドのX軸のセル幅
+    for (let i= cellX ; i < canvas.width; i += cellX){
+      if(i === centerX) continue; //中心線は描画しない
+      ctx.beginPath();
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i, canvas.height);
+      ctx.stroke();
+    }
+    // 水平線
+    let cellY = canvas.height / 20; //グリッドのY軸のセル幅
+    for (let i= cellY ; i < canvas.height; i += cellY){
+      if(i === centerY) continue; //中心線は描画しない
+      ctx.beginPath();
+      ctx.moveTo(0, i);
+      ctx.lineTo(canvas.width, i);
+      ctx.stroke();
+    }
+
+    //円
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 200, 0, 2 * Math.PI); // 半径を200に変更
+    ctx.strokeStyle = orange; //円弧の色
+    ctx.lineWidth = 4; //円弧の太さ
+    ctx.stroke();
+  }
+  paint();
+
+    // 角度の取得
+    let angleRange = document.getElementById("angleRange");
+    let angleValue = document.getElementById("angleValue");
+    let anglePi = document.getElementById("anglePi");
+    let radian = angleRange.value * (Math.PI / 180); // 初期値をラジアンに変換
+    angleRange.addEventListener("input", function() {
+      let angle = parseFloat(angleRange.value);
+      angleValue.textContent = angle.toFixed(2);
+      anglePi.textContent = (angle / 180).toFixed(2);
+
+      // ラジアンに変換
+      radian = angle * (Math.PI / 180);
+      ctx.setLineDash([]); //実線
+
+      // スライダーで選んだ角度の点を描画
+      pointX = Math.cos(radian) * 200 + centerX; // X座標
+      pointY = Math.sin(radian) * -200 + centerY; // Y座標
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      paint();
+      ctx.beginPath();
+      ctx.arc(pointX, pointY, 6, 0, 2 * Math.PI);
+      ctx.fillStyle = red;
+      ctx.fill();
+      ctx.strokeStyle = purple; // 点の周りの線の色
+      ctx.stroke();
+
+      //　斜めの線(cos) を描画
+      ctx.beginPath();
+      ctx.setLineDash([]);
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(pointX, pointY);
+      ctx.strokeStyle = red; // 縦の線の色
+      ctx.lineWidth = 2; // 縦の線の太さ
+      ctx.stroke();
+
+      //　縦の線(cos) を描画
+      ctx.beginPath();
+      ctx.setLineDash([2, 4]);
+      ctx.moveTo(pointX, pointY);
+      ctx.lineTo(pointX, centerY);
+      ctx.strokeStyle = purple; // 縦の線の色
+      ctx.lineWidth = 2; // 縦の線の太さ
+      ctx.stroke();
+
+      // 角度のコメントを更新
+      let xline = document.getElementById("xline");
+      xline.textContent = "cos(" + angleValue.textContent + "°) = " + Math.cos(radian).toFixed(2);
+      xline.style.left = pointX + "px"; // X座標に合わせて配置
+      xline.style.top = centerY  + "px"; // Y座標に合わせて配置  
+
+      let yline = document.getElementById("yline");
+      yline.textContent = "sin(" + angleValue.textContent + "°) = " + Math.sin(radian).toFixed(2);
+      yline.style.left = centerY + "px"; // X座標に合わせて配置
+      yline.style.top = pointY + "px"; // Y座標に合わせて配置
+
+      //　横線(cos) を描画
+      ctx.beginPath();
+      ctx.setLineDash([2, 4]);
+      ctx.moveTo(pointX, pointY);
+      ctx.lineTo(centerX, pointY);
+      ctx.strokeStyle = orange; // 縦の線の色
+      ctx.lineWidth = 2; // 縦の線の太さ
+      ctx.stroke();
+
+    });
+    console.log("radian=", radian / Math.PI);
+
+  </script>
+  
+</body>
+</html>

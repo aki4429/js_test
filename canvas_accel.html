@@ -15,6 +15,10 @@
     
     // 2. 四角形の位置を記録する変数
     let x = 0;  // 左端から開始
+    let x2 = 0;  // 左端から開始
+    let velocity = 5; // 初期速度
+    let accel = 0.2; // 加速度
+    let counter = 0;
     
     // 3. アニメーション関数
     function animate() {
@@ -22,16 +26,31 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // 四角形を描画（x座標, y座標, 幅, 高さ）
-      ctx.fillStyle = 'red';
+      if( counter % 2 == 0){
+        ctx.fillStyle = 'blue';
+      } else {
+        ctx.fillStyle = 'red';
+      }
       ctx.fillRect(x, 100, 50, 50);
+
+      ctx.fillStyle = 'green';
+      ctx.fillRect(x2, 200, 50, 50);
       
       // 位置を5ピクセル右に移動
-      x += 5 ;
-      
+      velocity += accel; // 加速度を適用
+      x += velocity;
+      x2 += 5 ;
+
       // 画面右端に到達したら左端に戻る
       if (x > canvas.width) {
         x = -50;  // 四角形が完全に見えなくなってから再登場
+        velocity = 5; // 速度をリセット
+        counter++;
       }
+      if (x2 > canvas.width) {
+        x2 = -50;  // 四角形が完全に見えなくなってから再登場
+      } 
+
       
       // 次のフレームで再度この関数を実行
       requestAnimationFrame(animate);

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>シンプル四角形アニメーション</title>
+</head>
+<body>
+  <canvas id="myCanvas" width="1000px" height="600px" style="border:1px solid #000;"></canvas>
+  
+  <script>
+    // 1. キャンバス要素とコンテキストを取得
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+
+    
+    // 2. 四角形の位置を記録する変数
+    let x = 0;  // 左端から開始
+    let x2 = 0;  // 左端から開始
+    let y = 100;
+    let y2 = 200;
+    let velocity = 2; // 初期速度
+    let accel = 0.2; // 加速度
+    let velocityY = -10; // 初期速度
+    let velocityY2 = -10; // 初期速度
+    let gravity = 0.5; // 重力
+    let counter = 0;
+    
+    // 3. アニメーション関数
+    function animate() {
+      // キャンバスをクリア（前のフレームを消去）
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // 四角形を描画（x座標, y座標, 幅, 高さ）
+      if( counter % 2 == 0){
+        ctx.fillStyle = 'blue';
+      } else {
+        ctx.fillStyle = 'red';
+      }
+      ctx.fillRect(x, y, 50, 50);
+
+      ctx.fillStyle = 'green';
+      ctx.fillRect(x2, y2, 50, 50);
+      
+      // // 位置を5ピクセル右に移動
+      // velocity += accel; // 加速度を適用
+      x += velocity;
+      x2 += 5 ;
+
+      y += velocityY;
+      y2 += velocityY2;
+      velocityY += gravity; // 重力を適用
+      velocityY2 += gravity; // 重力を適用
+
+      // 画面右端に到達したら左端に戻る
+      if (x > canvas.width) {
+        x = -50;  // 四角形が完全に見えなくなってから再登場
+        velocity = 5; // 速度をリセット
+        counter++;
+      }
+      if (x2 > canvas.width) {
+        x2 = -50;  // 四角形が完全に見えなくなってから再登場
+      } 
+
+      if(y > canvas.height) {
+        y = 100;
+        velocityY = -10;
+      }
+      if(y2 > canvas.height) {
+        y2 = 200;
+        velocityY2 = -10;
+      }
+
+      // 次のフレームで再度この関数を実行
+      requestAnimationFrame(animate);
+    }
+    
+    // 4. アニメーション開始
+    animate();
+  </script>
+</body>
+</html>
